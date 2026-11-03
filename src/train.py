@@ -54,7 +54,7 @@ colours = ['dimgrey','grey','darkgrey','lightgrey','whitesmoke']
 
 plt.figure(facecolor='lightsteelblue')
 for i in range(5):
-    width = len(history.history["val_accuracy"])/6
+    width = len(history.history["val_accuracy"])/5
     plt.axvspan(i*width, (i+1)*width, color=colours[i])
     
 plt.plot(history.history["accuracy"], color='navy', linestyle="dashed", label="Training accuracy")
