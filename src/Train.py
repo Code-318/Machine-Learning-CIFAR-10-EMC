@@ -9,6 +9,9 @@ import matplotlib.pyplot as plt
 EPOCHS = 60
 BATCH = 64
 
+#Check if GPU is connected (Reccommended to have GPU otherwise it will be very slow)
+print("GPUs:", tf.config.list_physical_devices('GPU'))
+
 #Load dataset
 ds = load_dataset("uoft-cs/cifar10")
 
@@ -25,23 +28,27 @@ x_test = np.stack([np.array(img) for img in ds["test"]["img"]]).astype("float32"
 y_test = np.array(ds["test"]["label"]).reshape(-1, 1)
 
 #Residual Block Function - residual learning mechanism
-def res_block(x, filters):
-    shortcut = x #Saves the original input, to resolve vanishing gradient problem - and to alow deeper learning
-    x = layers.Conv2D(filters, 3, padding='same', use_bias=False)(x) #Applies a 3x3 convolutional layer to identify features or patterns
-    x = layers.BatchNormalization()(x) #Normalises the inputs so that each epoch has similar inputs each time, which prevents 'moving targets'.
-    x = layers.Activation('relu')(x) #Activation layer to allow for some linearity
+def res_block(x, filters): #Takes 2 parameters, x - inputs and filters-number of filters
+    shortcut = x #Saves the original input, to resolve vanishing gradient problem - and bypass the conv layers later (during backpropogation).
+    #First Convolution
+    x = layers.Conv2D(filters, 3, padding='same', use_bias=False)(x) #Applies a 3x3 convolutional layer (kernel) to identify features or patterns
+    x = layers.BatchNormalization()(x) #Normalises the activations so that each batch has similar distributions. This helps stabilise training and makes optimisation easier.
+    x = layers.Activation('relu')(x) #Activation layer to allow for non-linearity. (Relu makes negative values 0, and leaves positives unchanged)
+    #Second convolution - almost identical to the prior
     x = layers.Conv2D(filters, 3, padding='same', use_bias=False)(x)
     x = layers.BatchNormalization()(x)
-    if shortcut.shape[-1] != filters:
-        shortcut = layers.Conv2D(filters, 1, use_bias=False)(shortcut)
-    x = layers.Add()([x, shortcut])
-    return layers.Activation('relu')(x)
+    if shortcut.shape[-1] != filters: #Checks whether the number of channels in input matches the number of filters in the conv layer.
+        shortcut = layers.Conv2D(filters, 1, use_bias=False)(shortcut) #If not - fix the dimensions
+    x = layers.Add()([x, shortcut]) #Adds the shortcut back onto the output.
+    return layers.Activation('relu')(x) #Only normalises after adding the shortcut back onto the output. This reduces vanishing gradients by making backpropogation easier.
 
+#Take the inputs
 inputs = layers.Input((32, 32, 3))
+
+#Apply augmentation every single epoch to avoid overfitting - where the model memorises the training datas pixels rather than patterns.
 x = layers.RandomFlip('horizontal_and_vertical')(inputs)
 x = layers.RandomTranslation(0.1, 0.1)(x)
 x = layers.RandomRotation(0.2)(x)
-
 
 x = res_block(x, 64)
 x = res_block(x, 64)
@@ -66,11 +73,11 @@ steps_per_epoch = -(-len(x_train) // BATCH)   # 704
 lr = tf.keras.optimizers.schedules.CosineDecay(
     initial_learning_rate=3e-5,           # start really small
     decay_steps=(EPOCHS - 3) * steps_per_epoch,
-    warmup_target=1e-3,                   # ramp it up to this
-    warmup_steps=3 * steps_per_epoch)     # over 3 epochs it increases, then decreases till the end.
+    warmup_target=1e-3,                   # ramp it up to this during warmup
+    warmup_steps=3 * steps_per_epoch)     # over 3 epochs it increases, then decreases using cosine-delay till the end.
 
 model.compile(
-    optimizer=tf.keras.optimizers.AdamW(
+    optimizer=tf.keras.optimizers.Adam(
         learning_rate=lr,
         weight_decay=3e-4
     ),
