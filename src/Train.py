@@ -50,26 +50,29 @@ x = layers.RandomFlip('horizontal_and_vertical')(inputs)
 x = layers.RandomTranslation(0.1, 0.1)(x)
 x = layers.RandomRotation(0.2)(x)
 
+#First residual block 
 x = res_block(x, 64)
 x = res_block(x, 64)
 x = layers.MaxPooling2D()(x)
-x = layers.Dropout(0.1)(x)
+x = layers.Dropout(0.1)(x) #Dropout disables some random neurons, which reduces overfitting and helps to make the model more well rounded.
 
+#Second residual block
 x = res_block(x, 128)
 x = res_block(x, 128)
 x = layers.MaxPooling2D()(x)
-x = layers.Dropout(0.2)(x)
+x = layers.Dropout(0.2)(x) #Increase dropout for higher filter res block
 
+#Third residual block
 x = res_block(x, 256)
 x = res_block(x, 256)
 x = layers.MaxPooling2D()(x)
-x = layers.Dropout(0.3)(x)
+x = layers.Dropout(0.3)(x) #Increase dropout for higher filter res block
 
 x = layers.GlobalAveragePooling2D()(x)
 outputs = layers.Dense(10)(x)
-model = models.Model(inputs, outputs)
+model = models.Model(inputs, outputs) #Initialise the model with keras
 
-steps_per_epoch = -(-len(x_train) // BATCH)   # 704
+steps_per_epoch = -(-len(x_train) // BATCH)   # 704 in this case
 lr = tf.keras.optimizers.schedules.CosineDecay(
     initial_learning_rate=3e-5,           # start really small
     decay_steps=(EPOCHS - 3) * steps_per_epoch,
@@ -79,7 +82,7 @@ lr = tf.keras.optimizers.schedules.CosineDecay(
 model.compile(
     optimizer=tf.keras.optimizers.Adam(
         learning_rate=lr,
-        weight_decay=3e-4
+        weight_decay=3e-4 #Decays the weight, preventing the model from fixating on local maxima, and reduces overfitting.
     ),
     loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),
     metrics=['accuracy'])
@@ -88,13 +91,15 @@ history = model.fit(
     x_train, y_train, epochs=EPOCHS, batch_size=BATCH,
     validation_data=(x_val, y_val))
 
-test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2)
-print(f"Test accuracy: {test_acc:.4f}")
+test_loss, test_acc = model.evaluate(x_test, y_test, verbose=2) #Evaluate the model
+print(f"Test accuracy: {test_acc:.4f}") #Output the test result
 
-model.save("my_cnn.keras")
+model.save("my_cnn.keras") #Save the model
 
 h = history.history
 
+#Plotting training figures
+#Accuracy figs
 plt.figure()
 plt.plot(h["accuracy"], label="Training accuracy")
 plt.plot(h["val_accuracy"], label="Validation accuracy")
@@ -102,6 +107,7 @@ plt.xlabel("Epoch"); plt.ylabel("Accuracy"); plt.legend()
 plt.savefig("goat_accuracy.png", dpi=300, bbox_inches="tight")
 plt.show()
 
+#Loss figs
 plt.figure()
 plt.plot(h["loss"], label="Training loss")
 plt.plot(h["val_loss"], label="Validation loss")
@@ -109,6 +115,7 @@ plt.xlabel("Epoch"); plt.ylabel("Loss"); plt.legend()
 plt.savefig("goat_loss.png", dpi=300, bbox_inches="tight")
 plt.show()
 
+#Download from google colab
 from google.colab import files
 files.download("goat_accuracy.png")
 files.download("goat_loss.png")
