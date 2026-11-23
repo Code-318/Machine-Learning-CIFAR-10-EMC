@@ -90,7 +90,7 @@ The model is trained using the following configuration:
 | Epochs | 60 |
 | Batch size | 64 |
 | Optimiser | Adam |
-| Initial learning rate | 0.00001 |
+| Initial learning rate | 0.00003 |
 | Maximum learning rate | 0.001 |
 | Weight decay | 0.0003 |
 | Learning rate schedule | Warmup followed by cosine decay |
