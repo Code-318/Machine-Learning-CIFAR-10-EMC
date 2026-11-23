@@ -10,7 +10,7 @@ The objective is to train a neural network that can identify the object represen
 
 The project uses a custom residual CNN architecture, includes convolutional layers, batch normalisation, residual connections and dropout to improve learning and generalisation.
 
-## Technologies and Dependencies
+## Required Dependencies
 
 The project is written in Python and uses the following libraries:
 
@@ -42,14 +42,14 @@ The model uses the CIFAR-10 dataset, which contains 60,000 labelled images acros
 The dataset is divided into three subsets:
 
 | Subset | Number of images | Reason |
-|---|:---:|:---:|
-| Training | 45,000 | To train |
+|---:|:---:|:---:|
+| Training | 45,000 | To train with |
 | Validation | 5,000 | Test each Epoch |
 | Testing | 10,000 | Final test |
 
 Pixel values are normalised to the range 0–1 by dividing by 255 to allow for smooth steady adjustments in weight.
 
-Data augmentation is applied during training using random horizontal and vertical flips, translations and rotations. This introduces variation/augmentation into the training images and helps to reduce overfitting. (where the model memorises exact pixel values rather than patterns.)
+Data augmentation is applied during training using random horizontal and vertical flips, translations and rotations. This introduces variation/augmentation into the training images and reduces overfitting. (where the model memorises exact pixel values rather than patterns.)
 
 ## Model Architecture
 
@@ -65,9 +65,7 @@ Each residual block contains:
 6. A residual connection that adds the original input to the processed output.
 7. A final ReLU activation.
 
-When the input and output have different channel dimensions, a 1 × 1 convolution is used to adjust the shortcut connection so that it can cleanly be added to the output. We add the shortcut to avoid 'vanishing gradients'.
-
-### Network Structure
+### Structure of Network
 
 | Stage | Residual blocks | Filters | Output resolution |
 |---|---:|---:|---:|
@@ -77,9 +75,9 @@ When the input and output have different channel dimensions, a 1 × 1 convolutio
 
 Max pooling is applied after each stage to reduce spatial dimensions.
 
-Dropout is also applied after each stage to help prevent overfitting. The dropout rates increase from 0.1 to 0.3.
+Dropout is also applied after each stage to help prevent overfitting. The dropout rates increase from 0.1 to 0.2 to 0.3.
 
-Finally, Global Average Pooling reduces the feature maps to a single vector, which is passed into a Dense layer containing 10 outputs, one for each CIFAR-10 class.
+Finally, Global Average Pooling reduces the feature maps to a single vector, which is passed into a Dense layer containing 10 outputs, one for each Cifar-10 class.
 
 ## Training Configuration
 
@@ -96,11 +94,11 @@ The model is trained using the following configuration:
 | Learning rate schedule | Warmup followed by cosine decay |
 | Loss function | Sparse Categorical Crossentropy |
 
-A learning rate warmup is used during the first three epochs, gradually increasing the learning rate from 0.00001 to 0.001.
+A learning rate warmup is used during the first three epochs, gradually increasing the learning rate from 0.00003 to 0.001.
 
 After warmup, cosine decay gradually reduces the learning rate over the remaining training epochs.
 
-## Evaluation
+## Performance
 
 The dataset's validation subset is used to monitor model performance during training.
 
@@ -117,10 +115,10 @@ Training and validation accuracy and loss are also plotted to help assess learni
 
 | Metric | Result |
 |---|---|
-| Final training accuracy | [Add result] |
-| Final validation accuracy | [Add result] |
-| Test accuracy | [Add result] |
-| Test loss | [Add result] |
+| Final training accuracy | 0.98 |
+| Final validation accuracy | 0.93 |
+| Test accuracy | 0.89 |
+| Test loss | 0.25 |
 
 ## Saving the Model
 
@@ -132,12 +130,21 @@ model.save("my_cnn.keras")
 
 This allows the trained model to be loaded later without having to repeat the training process.
 
+We run the project using CNN.py
+
 ## Running the Project
 
+### Training the AI
 1. Open Google Collab or your chosen IDE
-2. If using collab, use our .ipynb File, Otherwise use our .py file.
+2. If using collab, use our Train.ipynb File, Otherwise use our Train.py file.
 3. Run the code 
 4. Wait for training and evaluation to complete.
 5. View the generated accuracy and loss graphs and the final test results.
 
-(We recommend running the code in Google Collab, that way you can use their GPU and re run the cell 2 without having to re import the Ciphar 10 database)
+(If you don't have a good GPU, we recommend you use google Colab, and run our Train.ipynb file. This way you can re-run the cell 2 without having to re import the Cifar 10 database which is dealt with in cell 1)
+
+### Running our CNN image detection
+1. Open CNN.py
+2. If you have trained your own model, replace official_cnn.keras with your own my_cnn.keras
+3. Input any image included in the cifar 10 image classes, (preferably a square image)
+4. View the generated image label and the confidence.
