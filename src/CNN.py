@@ -3,7 +3,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 #Load the trained model
-model = keras.models.load_model("Final.keras")
+model = keras.models.load_model("my_cnn.keras")
 
 # Output the expected input
 print("Expected input shape:", model.input_shape)
