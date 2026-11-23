@@ -114,9 +114,3 @@ plt.plot(h["val_loss"], label="Validation loss")
 plt.xlabel("Epoch"); plt.ylabel("Loss"); plt.legend()
 plt.savefig("goat_loss.png", dpi=300, bbox_inches="tight")
 plt.show()
-
-#Download from google colab
-from google.colab import files
-files.download("goat_accuracy.png")
-files.download("goat_loss.png")
-files.download("my_cnn.keras")
