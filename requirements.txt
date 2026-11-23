@@ -1,4 +1,3 @@
-tensorflow
+tensorflow/Keras
 numpy
 matplotlib
-jupyter
