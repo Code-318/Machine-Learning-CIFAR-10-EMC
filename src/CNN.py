@@ -4,7 +4,7 @@ import tensorflow as tf
 from tensorflow import keras
 
 # Load the trained model
-model = keras.models.load_model("my_cnn.keras")
+model = keras.models.load_model("official_cnn.keras")
 
 print("Expected input shape:", model.input_shape)
 
