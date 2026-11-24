@@ -9,8 +9,9 @@ model = keras.models.load_model("official_cnn.keras")
 print("Expected input shape:", model.input_shape)
 
 # Load and preprocess the image
+name = input("Which image would you like to test? (e.g., 'dog1'): ")
 img = keras.utils.load_img(
-    "pony.jpg",
+    name+".jpg",
     target_size=(32, 32),
     color_mode="rgb"
 )
